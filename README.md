@@ -22,10 +22,10 @@ Users should be able to:
 - Search for any IP addresses or domains and see the key information and location
 
 ### Website
-
+<div>
 <img src='./gifs/iptracker.gif' width='580' align='top'>
 <img src='./gifs/iptracker-mob.gif' height='430'>
-
+</div>
 ### Links
 
 - Solution URL: [Add solution URL here](https://your-solution-url.com)
