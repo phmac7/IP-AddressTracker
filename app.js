@@ -1,7 +1,8 @@
 const form = document.querySelector('.tracker__form')
 const input = document.querySelector('.tracker__input')
 const btn = document.querySelector('#tracker__btn')
-const wait = document.querySelector('.tracker__wait')
+const wait = document.querySelector('.tracker__wait-container')
+const timer = document.querySelector('.tracker__wait')
 
 const ipText = document.querySelector('.tracker__info--ip')
 const locationText = document.querySelector('.tracker__info--location')
@@ -18,7 +19,7 @@ const validator = (input) => {
         ip = input
         input = ''
         return (ip)
-    } else if (/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/.test(input) || /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/.test(input)) {
+    } else if (/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/.test(input) || /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/.test(input)) { //checking if its a domain
         domain = input
         input = ''
         return (domain)
@@ -28,7 +29,7 @@ const validator = (input) => {
     }
 }
 
-//getting data from geo.ipfy
+//getting data from geo.ipfy api
 const getData = async () => {
     try {
         let res = await axios.get('https://geo.ipify.org/api/v2/country,city', {
@@ -46,9 +47,9 @@ const getData = async () => {
 }
 
 
-//creating map
-const latlng = [51.5, -0.09]
-const map = L.map('map').setView(latlng, 13);
+//creating map (leaflet api)
+const latlng = [34.05223, -118.24368]
+const map = L.map('map', { attributionControl: false, zoomControl: false }).setView(latlng, 13);
 const genMap = () => {
     map.setView(latlng)
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGVkcm9rc3oiLCJhIjoiY2wwdWNzZ2ZsMDVqOTNpbnowamYzaXI5OCJ9.yPibbo_i33bc5W-Y3WtlZA', {
@@ -69,19 +70,32 @@ genMap()
 
 
 
-//
+//form click event
 form.addEventListener('submit', async (e) => {
     e.preventDefault()
     validator(input.value)
-
     btn.setAttribute('disabled', 'disabled')
+
+    //toggling the timer interval between clicks
     wait.style.display = 'block'
+    timer.innerHTML = 7
+    const timerOld = new Date()
+    setInterval(() => {
+        const timerNew = new Date()
+        if (timerNew - timerOld < 7000) {
+            timer.innerHTML = timer.innerHTML - 1
+        } else {
+            clearInterval()
+        }
+    }, 1000)
 
     setTimeout(() => {
         btn.removeAttribute('disabled')
         wait.style.display = 'none'
+
     }, 7000)
 
+    //updating the map
     await getData()
     ipText.innerHTML = data.ip
     locationText.innerHTML = `${data.location.city}, ${data.location.region} ${data.location.postalCode}`
